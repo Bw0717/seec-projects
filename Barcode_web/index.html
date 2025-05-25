@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>QR Code 批次產生器</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .main-container {
+      display: flex;
+      justify-content: space-between;
+    }
+    .input-container {
+      display: flex;
+      flex-direction: column;
+      width: 40%;
+    }
+    .input-pair {
+      display: flex;
+      margin-bottom: 8px;
+      gap: 6px;
+    }
+    .input-pair input {
+      flex: 1;
+      padding: 6px;
+    }
+    #output {
+      width: 55%;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-content: flex-start;
+    }
+    .qrcode-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 160px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      background: #fff;
+    }
+    .qrcode-block div {
+      margin: 5px 0;
+      text-align: center;
+      word-break: break-word;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>QR Code 批次產生</h1>
+
+  <div class="main-container">
+    <div class="input-container">
+      <!-- 10 組輸入 -->
+      <div class="input-pair"><input type="text" placeholder="標籤 1" class="label"><input type="text" placeholder="內容 1" class="content"></div>
+      <div class="input-pair"><input type="text" placeholder="標籤 2" class="label"><input type="text" placeholder="內容 2" class="content"></div>
+      <div class="input-pair"><input type="text" placeholder="標籤 3" class="label"><input type="text" placeholder="內容 3" class="content"></div>
+      <div class="input-pair"><input type="text" placeholder="標籤 4" class="label"><input type="text" placeholder="內容 4" class="content"></div>
+      <div class="input-pair"><input type="text" placeholder="標籤 5" class="label"><input type="text" placeholder="內容 5" class="content"></div>
+      <div class="input-pair"><input type="text" placeholder="標籤 6" class="label"><input type="text" placeholder="內容 6" class="content"></div>
+      <div class="input-pair"><input type="text" placeholder="標籤 7" class="label"><input type="text" placeholder="內容 7" class="content"></div>
+      <div class="input-pair"><input type="text" placeholder="標籤 8" class="label"><input type="text" placeholder="內容 8" class="content"></div>
+      <div class="input-pair"><input type="text" placeholder="標籤 9" class="label"><input type="text" placeholder="內容 9" class="content"></div>
+      <div class="input-pair"><input type="text" placeholder="標籤 10" class="label"><input type="text" placeholder="內容 10" class="content"></div>
+      <button onclick="generateQRCodes()">開始產生並下載</button>
+    </div>
+
+    <div id="output"></div>
+  </div>
+
+  <script>
+    function generateQRCodes() {
+      const labels = document.querySelectorAll('.label');
+      const contents = document.querySelectorAll('.content');
+      const output = document.getElementById('output');
+      output.innerHTML = '';
+
+      for (let i = 0; i < labels.length; i++) {
+        const label = labels[i].value.trim() || `QRCode_${i + 1}`;
+        const content = contents[i].value.trim();
+        if (!content) continue;
+
+        const block = document.createElement('div');
+        block.className = 'qrcode-block';
+        block.id = `qrcode-block-${i}`;
+
+        const labelDiv = document.createElement('div');
+        labelDiv.textContent = label;
+        block.appendChild(labelDiv);
+
+        const canvas = document.createElement('canvas');
+        QRCode.toCanvas(canvas, content, { width: 128, height: 128, errorCorrectionLevel: 'H' }, function (error) {
+          if (error) {
+            console.error(error);
+            return;
+          }
+
+          const contentDiv = document.createElement('div');
+          contentDiv.textContent = content;
+
+          block.appendChild(canvas);
+          block.appendChild(contentDiv);
+          output.appendChild(block);
+
+
+          setTimeout(() => {
+            html2canvas(block).then(canvasImage => {
+              const link = document.createElement('a');
+              link.download = `${label}.png`;
+              link.href = canvasImage.toDataURL();
+              link.click();
+            });
+          }, 300);
+        });
+      }
+    }
+  </script>
+</body>
+</html>
